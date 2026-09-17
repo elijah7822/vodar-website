@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VODAR — Website Under Construction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-primary: #F0303F;
+      --brand-primary-dark: #C41A27;
+      --brand-primary-light: #FF6B76;
+      --brand-primary-tint: #FFF0F1;
+
+      --text-primary: #1A1A2E;
+      --text-secondary: #4A4A5A;
+      --text-muted: #8A8A9A;
+
+      --bg-light: #F5F5F7;
+      --border-light: #E8E8EC;
+      --shadow-brand: rgba(240, 48, 63, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      color: var(--text-primary);
+      background:
+        radial-gradient(1200px 600px at 100% -10%, rgba(240,48,63,0.06), transparent 60%),
+        radial-gradient(900px 500px at -10% 110%, rgba(240,48,63,0.05), transparent 60%),
+        #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- 顶部导航 ---------- */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 16px 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo img {
+      height: 34px;
+      width: auto;
+      display: block;
+    }
+
+    /* ---------- 主体 ---------- */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 64px 24px;
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(34px, 6vw, 60px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 18px;
+    }
+    h1 .accent {
+      color: var(--brand-primary);
+    }
+
+    /* ---------- 加载动画 ---------- */
+    .bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 44px;
+      margin-bottom: 40px;
+    }
+    .bars span {
+      width: 6px;
+      border-radius: 3px;
+      background: var(--brand-primary);
+      animation: bar 1.2s ease-in-out infinite;
+    }
+    .bars span:nth-child(1) { height: 40%; animation-delay: 0s; }
+    .bars span:nth-child(2) { height: 100%; animation-delay: .15s; }
+    .bars span:nth-child(3) { height: 65%; animation-delay: .3s; }
+    .bars span:nth-child(4) { height: 100%; animation-delay: .45s; }
+    .bars span:nth-child(5) { height: 40%; animation-delay: .6s; }
+    @keyframes bar {
+      0%, 100% { transform: scaleY(1); opacity: .4; }
+      50% { transform: scaleY(1.5); opacity: 1; }
+    }
+
+    /* ---------- 页脚 ---------- */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    @media (max-width: 560px) {
+      header { padding: 12px 20px; }
+      .logo img { height: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header: logo on top-left -->
+  <header>
+    <a class="logo" href="#" aria-label="VODAR Home">
+      <img src="logo.png" alt="VODAR" />
+    </a>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <h1>Our website is <span class="accent">coming soon</span></h1>
+
+    <div class="bars" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 VODAR. All rights reserved.
+  </footer>
+
+</body>
+</html>
