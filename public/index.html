@@ -140,6 +140,7 @@
     .form-status.success { color: #16a34a; }
     .form-status.error { color: var(--brand-primary); }
     .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .details { background: var(--bg-light); border-radius: 8px; padding: 10px 12px; }
 
     /* ---------- Checkout panel ---------- */
     .panel {
@@ -197,10 +198,10 @@
     .badge {
       display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
     }
-    .badge.paid, .badge.resolved { background: #EAF7EC; color: #16a34a; }
-    .badge.pending, .badge.open { background: var(--bg-light); color: var(--text-muted); }
-    .badge.shipped, .badge.processing { background: #FFF6E8; color: #C77D0A; }
-    .badge.completed { background: var(--brand-primary-tint); color: var(--brand-primary-dark); }
+    .badge.paid, .badge.resolved, .badge.approved, .badge.refunded, .badge.closed { background: #EAF7EC; color: #16a34a; }
+    .badge.pending, .badge.open, .badge.submitted { background: var(--bg-light); color: var(--text-muted); }
+    .badge.shipped, .badge.processing, .badge.reviewing, .badge.awaiting_return, .badge.return_received, .badge.replacement_shipped { background: #FFF6E8; color: #C77D0A; }
+    .badge.completed, .badge.rejected { background: var(--brand-primary-tint); color: var(--brand-primary-dark); }
 
     /* ---------- Footer ---------- */
     footer {
@@ -340,8 +341,10 @@
             <div class="field">
               <label for="as-type">Type</label>
               <select id="as-type">
-                <option value="return">Return</option>
+                <option value="cancel">Cancel order</option>
+                <option value="return_refund">Return &amp; refund</option>
                 <option value="exchange">Exchange</option>
+                <option value="defective">Damaged or defective item</option>
                 <option value="other">Other issue</option>
               </select>
             </div>
@@ -349,6 +352,10 @@
               <label for="as-subject">Subject</label>
               <input type="text" id="as-subject" placeholder="Short summary" maxlength="120" required />
             </div>
+          </div>
+          <div class="field">
+            <label>Items concerned</label>
+            <div id="as-items" class="details"></div>
           </div>
           <div class="field">
             <label for="as-detail">Details</label>
@@ -576,7 +583,17 @@
     const STATUS_STEPS = ['pending', 'paid', 'shipped', 'completed'];
     const STATUS_LABEL = { pending: 'Order placed', paid: 'Payment', shipped: 'Shipped', completed: 'Completed' };
     const BADGE_LABEL = { pending: 'Awaiting payment', paid: 'Paid', shipped: 'Shipped', completed: 'Completed' };
-    const AS_LABEL = { open: 'Open', processing: 'In progress', resolved: 'Resolved' };
+    const AS_LABEL = {
+      submitted: 'Submitted', reviewing: 'Under review', approved: 'Approved',
+      awaiting_return: 'Awaiting return', return_received: 'Return received',
+      replacement_shipped: 'Replacement shipped', refunded: 'Refund completed',
+      rejected: 'Not approved', closed: 'Closed',
+      open: 'Submitted', processing: 'Under review', resolved: 'Closed',
+    };
+    const AS_TYPE_LABEL = {
+      cancel: 'Cancel order', return_refund: 'Return & refund', exchange: 'Exchange',
+      defective: 'Damaged or defective item', other: 'Other issue', return: 'Return',
+    };
 
     $('btn-track').addEventListener('click', trackOrder);
     $('track-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') trackOrder(); });
@@ -619,14 +636,22 @@
         : '<div class="kv"><span class="k">Tracking</span><span style="color:var(--text-muted);font-size:13px;">Not yet available — we will add it once shipped.</span></div>';
 
       const ticketsHtml = order.aftersales.length
-        ? order.aftersales.map((t) => `
+        ? order.aftersales.map((t) => {
+          const ticketItems = (t.items || []).map((it) => `${escapeHtml(it.name || it.product_id)} × ${it.qty}`).join(', ');
+          const refund = t.refund_status === 'completed'
+            ? `<p style="font-size:13px;margin-top:6px;"><strong>Refund:</strong> ${money(t.refund_amount)}${t.refund_reference ? ` · ${escapeHtml(t.refund_reference)}` : ''}</p>`
+            : '';
+          return `
           <div style="border:1px solid var(--border-light);border-radius:10px;padding:12px;margin-top:8px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <strong style="font-size:13px;">${escapeHtml(t.subject)}</strong>
+              <strong style="font-size:13px;">#${t.id} · ${escapeHtml(t.subject)}</strong>
               <span class="badge ${t.status}">${AS_LABEL[t.status] || t.status}</span>
             </div>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:6px;">${escapeHtml(AS_TYPE_LABEL[t.type] || t.type)}${ticketItems ? ` · ${ticketItems}` : ''}<br>Submitted ${escapeHtml(t.created_at)}${t.updated_at ? ` · Updated ${escapeHtml(t.updated_at)}` : ''}</p>
             <p style="font-size:13px;color:var(--text-secondary);margin-top:6px;">${escapeHtml(t.resolution || 'We are reviewing your request.')}</p>
-          </div>`).join('')
+            ${refund}
+          </div>`;
+        }).join('')
         : '';
 
       box.innerHTML = `
@@ -649,6 +674,12 @@
       // Aftersales entry: needs order number + matching email
       $('as-email-hint').textContent = `Email on file: ${order.email_hint}`;
       $('as-email').value = window._lastEmail || '';
+      $('as-items').innerHTML = order.items.map((it) => `
+        <label style="display:flex;align-items:center;gap:8px;margin:6px 0;font-weight:400;">
+          <input type="checkbox" class="as-item-check" data-product-id="${escapeHtml(it.product_id)}" checked />
+          <span style="flex:1;">${escapeHtml(it.name || it.product_id)}</span>
+          <input type="number" class="as-item-qty" data-product-id="${escapeHtml(it.product_id)}" min="1" max="${it.qty}" value="${it.qty}" style="width:70px;" />
+        </label>`).join('');
       $('aftersales-panel').classList.remove('hidden');
     }
 
@@ -659,6 +690,15 @@
       const btn = $('btn-aftersales');
       const orderId = trackedOrder ? trackedOrder.order_id : $('track-input').value.trim().toUpperCase();
       if (!orderId) return;
+      const selectedItems = [...document.querySelectorAll('.as-item-check:checked')].map((check) => ({
+        product_id: check.dataset.productId,
+        qty: Number(document.querySelector(`.as-item-qty[data-product-id="${CSS.escape(check.dataset.productId)}"]`).value),
+      }));
+      if (!selectedItems.length) {
+        statusEl.textContent = 'Please select at least one item.';
+        statusEl.className = 'form-status error';
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = 'Submitting...';
@@ -673,13 +713,17 @@
             subject: $('as-subject').value,
             detail: $('as-detail').value,
             email: $('as-email').value,
+            items: selectedItems,
           }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Submission failed.');
         $('as-subject').value = '';
         $('as-detail').value = '';
-        statusEl.textContent = 'Request submitted. We will get back to you soon.';
+        const mailNote = data.email && data.email.customer === 'sent'
+          ? ' A confirmation email has been sent.'
+          : ' Your request is saved; please check its status here.';
+        statusEl.textContent = `Request #${data.id} submitted.${mailNote} We will review it within 2 business days. Please do not ship anything until we send instructions.`;
         statusEl.className = 'form-status success';
         trackOrder();
       } catch (err) {

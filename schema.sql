@@ -52,11 +52,25 @@ CREATE TABLE IF NOT EXISTS after_sales (
   subject     TEXT NOT NULL,
   detail      TEXT NOT NULL,
   contact     TEXT NOT NULL,
-  status      TEXT NOT NULL DEFAULT 'open',
+  status      TEXT NOT NULL DEFAULT 'submitted',
   resolution  TEXT NOT NULL DEFAULT '',
-  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+  internal_note    TEXT NOT NULL DEFAULT '',
+  refund_status    TEXT NOT NULL DEFAULT 'not_required',
+  refund_amount    INTEGER NOT NULL DEFAULT 0,
+  refund_reference TEXT NOT NULL DEFAULT '',
+  refunded_at      TEXT,
+  created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at       TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX IF NOT EXISTS idx_after_sales_order ON after_sales(order_id);
+
+CREATE TABLE IF NOT EXISTS after_sales_items (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  ticket_id  INTEGER NOT NULL,
+  product_id TEXT NOT NULL,
+  qty        INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_after_sales_items_ticket ON after_sales_items(ticket_id);
 
 -- Admin login rate limiting (5 fails -> 15 min lock per IP)
 CREATE TABLE IF NOT EXISTS login_attempts (

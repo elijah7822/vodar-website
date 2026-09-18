@@ -50,10 +50,10 @@ Step 'track shows paid' ($t.status -eq 'paid')
 Step 'email masked' ($t.email_hint -eq 'p***@example.com') ("hint=" + $t.email_hint)
 Step 'no address/email leak' ($t -and -not $t.PSObject.Properties['address'] -and -not $t.PSObject.Properties['email'])
 
-$r = HttpCurl 'POST' "$Base/api/order/$($o1.order)/aftersales" (@{ type = 'return'; subject = 'x'; detail = 'y'; email = 'wrong@example.com' } | ConvertTo-Json)
+$r = HttpCurl 'POST' "$Base/api/order/$($o1.order)/aftersales" (@{ type = 'return_refund'; subject = 'x'; detail = 'y'; email = 'wrong@example.com'; items = @(@{ product_id = 'P1'; qty = 1 }) } | ConvertTo-Json -Depth 4)
 Step 'aftersales wrong email rejected' ($r.code -eq 403) ("code=" + $r.code)
 
-$r = HttpCurl 'POST' "$Base/api/order/$($o1.order)/aftersales" (@{ type = 'return'; subject = 'Broken strap'; detail = 'Prod smoke test ticket'; email = $email } | ConvertTo-Json)
+$r = HttpCurl 'POST' "$Base/api/order/$($o1.order)/aftersales" (@{ type = 'return_refund'; subject = 'Broken strap'; detail = 'Prod smoke test ticket'; email = $email; items = @(@{ product_id = 'P1'; qty = 1 }) } | ConvertTo-Json -Depth 4)
 $as = $null; try { $as = $r.body | ConvertFrom-Json } catch {}
 Step 'aftersales accepted' ($r.code -eq 200 -and $as.ok) ("id=" + $as.id)
 

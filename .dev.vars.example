@@ -1,0 +1,4 @@
+ADMIN_PASSWORD=replace-with-a-strong-local-password
+RESEND_API_KEY=re_xxxxxxxxx
+SUPPORT_EMAIL=support@vodar.net
+MAIL_FROM="VODAR Support <support@vodar.net>"

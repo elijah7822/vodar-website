@@ -216,6 +216,8 @@
 |:--|:--|
 | `ADMIN_PASSWORD` | 商家后台密码（实现阶段设置） |
 | `RESEND_API_KEY` | Resend 发信凭据（免费档） |
+| `SUPPORT_EMAIL` | 商家接收新售后提醒的邮箱；当前使用 `support@vodar.net` |
+| `MAIL_FROM` | 已在 Resend 验证的 VODAR 发件地址 |
 | `LIANLIAN_API_KEY` / `LIANLIAN_SIGN_KEY` | 连连连真实收单凭据 + 回调验签密钥（拿到后设置，模拟阶段可空） |
 
 ## 10. 终审风险评审记录（2026-09-18）

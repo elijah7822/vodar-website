@@ -32,6 +32,8 @@
 - [ ] 1.4 `functions/api/order/[id]/query.js` — GET 查询：**只读脱敏（#13）**：返回状态/商品/物流/售后进度；不返回地址、完整邮箱
 - [ ] 1.5 `functions/api/aftersales/create.js` — POST 售后：**邮箱二次校验（#13）**：需提交订单邮箱，服务端比对（脱敏显示 `j***@gmail.com`），匹配才受理工单
 - [ ] 1.6 `functions/api/_lib/email.js` — Resend 发信：付款成功邮件（含订单号、查询入口链接）；失败不阻塞订单流程（记录日志）
+- [x] 1.7 售后邮件闭环：新工单同时提醒商家和确认买家；状态、处理答复或退款记录变化时通知买家；邮件失败不丢工单
+- [x] 1.8 售后商品与退款记录：工单关联具体商品/数量，区分用户可见答复和内部备注，记录人工退款状态、金额、平台编号和时间
 
 ### 阶段 2：商家后台 API（全部带登录态校验）
 - [ ] 2.1 `functions/api/admin/login.js` — POST 密码登录（对 `ADMIN_PASSWORD` Secret）；签发带过期的会话 Cookie（HttpOnly）
@@ -67,7 +69,8 @@
 
 ### 阶段 6：部署上线
 - [ ] 6.1 生产 D1 建库 + 绑定（Pages 项目配置或 wrangler.toml 提交）
-- [ ] 6.2 Secrets：`ADMIN_PASSWORD`（与用户商定）、`RESEND_API_KEY`（用户注册 Resend 免费档 + 域名验证）
+- [ ] 6.1a 已有生产库先执行 `migrations/0002-aftersales-notifications.sql`，再部署依赖新字段的 Worker
+- [ ] 6.2 Secrets：`ADMIN_PASSWORD`、`RESEND_API_KEY`、`SUPPORT_EMAIL`；变量 `MAIL_FROM` 使用已在 Resend 验证的发件地址
 - [ ] 6.3 git push → Pages 自动部署 → 线上冒烟测试（真实浏览器）
 - [ ] 6.4 用真实邮箱走一遍全流程，确认订单邮件送达
 

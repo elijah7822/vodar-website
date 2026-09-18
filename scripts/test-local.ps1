@@ -31,13 +31,17 @@ Step 'no address/email leak' (-not $t.PSObject.Properties['address'] -and -not $
 
 try {
   Invoke-RestMethod -Method Post -Uri "$base/api/order/$($o1.order)/aftersales" -ContentType 'application/json' `
-    -Body (@{ type = 'return'; subject = 'x'; detail = 'y'; email = 'wrong@example.com' } | ConvertTo-Json) | Out-Null
+    -Body (@{ type = 'return_refund'; subject = 'x'; detail = 'y'; email = 'wrong@example.com'; items = @(@{ product_id = 'P1'; qty = 1 }) } | ConvertTo-Json -Depth 4) | Out-Null
   Step 'aftersales wrong email rejected' $false
 } catch { Step 'aftersales wrong email rejected' ($_.Exception.Response.StatusCode.value__ -eq 403) ("code=" + $_.Exception.Response.StatusCode.value__) }
 
 $as = Invoke-RestMethod -Method Post -Uri "$base/api/order/$($o1.order)/aftersales" -ContentType 'application/json' `
-  -Body (@{ type = 'return'; subject = 'Broken strap'; detail = 'Strap snapped after one week'; email = 'buyer@example.com' } | ConvertTo-Json)
-Step 'aftersales accepted' ($as.ok) ("id=" + $as.id)
+  -Body (@{ type = 'return_refund'; subject = 'Broken strap'; detail = 'Strap snapped after one week'; email = 'buyer@example.com'; items = @(@{ product_id = 'P1'; qty = 1 }) } | ConvertTo-Json -Depth 4)
+Step 'aftersales accepted + mail attempted' ($as.ok -and $as.email.customer -eq 'skipped' -and $as.email.admin -eq 'skipped') ("id=" + $as.id)
+
+$asDup = Invoke-RestMethod -Method Post -Uri "$base/api/order/$($o1.order)/aftersales" -ContentType 'application/json' `
+  -Body (@{ type = 'return_refund'; subject = 'Broken strap'; detail = 'Strap snapped after one week'; email = 'buyer@example.com'; items = @(@{ product_id = 'P1'; qty = 1 }) } | ConvertTo-Json -Depth 4)
+Step 'aftersales duplicate suppressed' ($asDup.duplicate -and $asDup.id -eq $as.id)
 
 try {
   Invoke-RestMethod "$base/api/admin/orders" | Out-Null
@@ -61,9 +65,10 @@ $t3 = (Invoke-RestMethod "$base/api/order/$($o1.order)").order
 Step 'complete order' ($comp.ok -and $t3.status -eq 'completed') ("status=" + $t3.status)
 
 $aupd = Invoke-RestMethod -Method Post -Uri "$base/api/admin/aftersales" -ContentType 'application/json' -WebSession $sess `
-  -Body (@{ id = $as.id; status = 'resolved'; resolution = 'Replacement strap sent' } | ConvertTo-Json)
+  -Body (@{ id = $as.id; status = 'refunded'; resolution = 'Refund completed'; internal_note = 'Verified manually'; refund_status = 'completed'; refund_amount = 10000; refund_reference = 'LOCAL-REF-1' } | ConvertTo-Json)
 $t4 = (Invoke-RestMethod "$base/api/order/$($o1.order)").order
-Step 'admin resolves ticket' ($aupd.ok -and $t4.aftersales[0].status -eq 'resolved' -and $t4.aftersales[0].resolution -eq 'Replacement strap sent')
+Step 'admin records refund' ($aupd.ok -and $t4.aftersales[0].status -eq 'refunded' -and $t4.aftersales[0].refund_amount -eq 10000 -and $t4.aftersales[0].items[0].product_id -eq 'P1')
+Step 'internal note remains private' (-not $t4.aftersales[0].PSObject.Properties['internal_note'])
 
 Invoke-RestMethod -Method Post -Uri "$base/api/admin/products" -ContentType 'application/json' -WebSession $sess `
   -Body (@{ id = 'P3'; active = $false } | ConvertTo-Json) | Out-Null
