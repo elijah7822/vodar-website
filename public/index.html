@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VODAR — Official Store</title>
+  <meta name="description" content="VODAR official store. Order the VODAR band, track your shipment and get support." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-primary: #F0303F;
+      --brand-primary-dark: #C41A27;
+      --brand-primary-light: #FF6B76;
+      --brand-primary-tint: #FFF0F1;
+      --text-primary: #1A1A2E;
+      --text-secondary: #4A4A5A;
+      --text-muted: #8A8A9A;
+      --bg-light: #F5F5F7;
+      --border-light: #E8E8EC;
+      --shadow-brand: rgba(240, 48, 63, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      color: var(--text-primary);
+      background:
+        radial-gradient(1200px 600px at 100% -10%, rgba(240,48,63,0.06), transparent 60%),
+        radial-gradient(900px 500px at -10% 110%, rgba(240,48,63,0.05), transparent 60%),
+        #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- Top bar ---------- */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 16px 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .logo { display: flex; align-items: center; text-decoration: none; }
+    .logo img { height: 34px; width: auto; display: block; }
+    nav { margin-left: auto; display: flex; gap: 22px; }
+    nav a {
+      font-size: 14px; font-weight: 600; color: var(--text-secondary);
+      text-decoration: none; transition: color .2s;
+    }
+    nav a:hover { color: var(--brand-primary); }
+
+    /* ---------- Layout ---------- */
+    main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 48px 24px 72px; }
+    section.block { width: 100%; max-width: 860px; margin-bottom: 56px; scroll-margin-top: 84px; }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(30px, 5vw, 46px);
+      font-weight: 800; letter-spacing: -0.02em; line-height: 1.15;
+      margin-bottom: 12px; text-align: center;
+    }
+    h1 .accent { color: var(--brand-primary); }
+    .hero-sub { color: var(--text-secondary); font-size: 16px; text-align: center; margin-bottom: 18px; }
+
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 22px; font-weight: 700; margin-bottom: 18px;
+    }
+
+    /* ---------- Bars animation (brand loader) ---------- */
+    .bars { display: flex; align-items: flex-end; gap: 8px; height: 36px; margin: 0 auto 34px; width: max-content; }
+    .bars span { width: 6px; border-radius: 3px; background: var(--brand-primary); animation: bar 1.2s ease-in-out infinite; }
+    .bars span:nth-child(1) { height: 40%; animation-delay: 0s; }
+    .bars span:nth-child(2) { height: 100%; animation-delay: .15s; }
+    .bars span:nth-child(3) { height: 65%; animation-delay: .3s; }
+    .bars span:nth-child(4) { height: 100%; animation-delay: .45s; }
+    .bars span:nth-child(5) { height: 40%; animation-delay: .6s; }
+    @keyframes bar { 0%, 100% { transform: scaleY(1); opacity: .4; } 50% { transform: scaleY(1.5); opacity: 1; } }
+
+    /* ---------- Products ---------- */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+    .card {
+      border: 1px solid var(--border-light); border-radius: 14px; padding: 20px;
+      display: flex; flex-direction: column; gap: 10px; background: #fff;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .card:hover { box-shadow: 0 8px 28px var(--shadow-brand); border-color: var(--brand-primary-light); }
+    .card .thumb {
+      border-radius: 10px; background: var(--brand-primary-tint);
+      aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .card .thumb svg { width: 56%; height: auto; }
+    .card h3 { font-size: 16px; font-weight: 700; }
+    .card .desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; flex: 1; }
+    .card .price { font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 800; color: var(--brand-primary); }
+    .qty-row { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+    .stepper { display: flex; align-items: center; gap: 10px; }
+    .stepper button {
+      width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border-light);
+      background: #fff; font-size: 16px; font-weight: 700; color: var(--text-secondary); cursor: pointer;
+      transition: border-color .2s;
+    }
+    .stepper button:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .stepper .n { min-width: 22px; text-align: center; font-weight: 700; font-size: 15px; }
+
+    /* ---------- Forms ---------- */
+    .field { margin-bottom: 14px; text-align: left; }
+    .field label { display: block; font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 11px 13px; border: 1px solid var(--border-light); border-radius: 10px;
+      font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text-primary); background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: var(--brand-primary); box-shadow: 0 0 0 3px var(--shadow-brand);
+    }
+    .field textarea { min-height: 100px; resize: vertical; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .btn {
+      width: 100%; padding: 13px; border: none; border-radius: 10px; background: var(--brand-primary);
+      color: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: .3px;
+      cursor: pointer; transition: background .2s, opacity .2s;
+    }
+    .btn:hover { background: var(--brand-primary-dark); }
+    .btn:disabled { opacity: .6; cursor: wait; }
+    .btn-ghost {
+      background: #fff; color: var(--brand-primary); border: 1px solid var(--brand-primary);
+    }
+    .btn-ghost:hover { background: var(--brand-primary-tint); }
+    .form-status { font-size: 14px; margin-top: 12px; min-height: 20px; text-align: left; }
+    .form-status.success { color: #16a34a; }
+    .form-status.error { color: var(--brand-primary); }
+    .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+    /* ---------- Checkout panel ---------- */
+    .panel {
+      border: 1px solid var(--border-light); border-radius: 14px; padding: 22px; background: #fff;
+    }
+    .summary-line { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-secondary); padding: 4px 0; }
+    .summary-total {
+      display: flex; justify-content: space-between; font-size: 16px; font-weight: 700;
+      border-top: 1px solid var(--border-light); margin-top: 8px; padding-top: 10px;
+    }
+    .demo-note {
+      font-size: 12px; color: var(--text-muted); background: var(--bg-light);
+      border-radius: 8px; padding: 8px 12px; margin-top: 12px; text-align: center;
+    }
+
+    /* ---------- Success ---------- */
+    .success-box { text-align: center; padding: 14px 0 4px; }
+    .success-box .check {
+      width: 56px; height: 56px; border-radius: 50%; background: var(--brand-primary-tint);
+      color: var(--brand-primary); font-size: 26px; font-weight: 800; line-height: 56px; margin: 0 auto 14px;
+    }
+    .order-no {
+      font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: .5px;
+      background: var(--brand-primary-tint); color: var(--brand-primary-dark);
+      padding: 8px 16px; border-radius: 10px; display: inline-block; margin: 10px 0 6px; user-select: all;
+    }
+
+    /* ---------- Track ---------- */
+    .track-search { display: flex; gap: 10px; margin-bottom: 6px; }
+    .track-search input { flex: 1; padding: 11px 13px; border: 1px solid var(--border-light); border-radius: 10px; font-size: 15px; }
+    .track-search input:focus { outline: none; border-color: var(--brand-primary); box-shadow: 0 0 0 3px var(--shadow-brand); }
+    .track-search button {
+      padding: 11px 22px; border: none; border-radius: 10px; background: var(--brand-primary); color: #fff;
+      font-weight: 600; font-size: 15px; cursor: pointer;
+    }
+    .track-search button:hover { background: var(--brand-primary-dark); }
+    .timeline { display: flex; gap: 0; margin: 22px 0 10px; }
+    .tl-step { flex: 1; text-align: center; position: relative; font-size: 12px; color: var(--text-muted); }
+    .tl-step::before {
+      content: ''; display: block; width: 12px; height: 12px; border-radius: 50%;
+      margin: 0 auto 8px; background: var(--border-light); position: relative; z-index: 1;
+    }
+    .tl-step::after {
+      content: ''; position: absolute; top: 5px; left: -50%; width: 100%; height: 2px; background: var(--border-light);
+    }
+    .tl-step:first-child::after { display: none; }
+    .tl-step.done { color: var(--text-primary); font-weight: 600; }
+    .tl-step.done::before { background: var(--brand-primary); }
+    .tl-step.done::after { background: var(--brand-primary-light); }
+    .track-card { border: 1px solid var(--border-light); border-radius: 12px; padding: 18px; background: #fff; }
+    .track-card + .track-card { margin-top: 14px; }
+    .track-card h4 { font-size: 14px; margin-bottom: 10px; color: var(--text-secondary); }
+    .kv { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; }
+    .kv .k { color: var(--text-muted); }
+    .badge {
+      display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+    }
+    .badge.paid, .badge.resolved { background: #EAF7EC; color: #16a34a; }
+    .badge.pending, .badge.open { background: var(--bg-light); color: var(--text-muted); }
+    .badge.shipped, .badge.processing { background: #FFF6E8; color: #C77D0A; }
+    .badge.completed { background: var(--brand-primary-tint); color: var(--brand-primary-dark); }
+
+    /* ---------- Footer ---------- */
+    footer {
+      text-align: center; padding: 28px 24px; color: var(--text-muted); font-size: 13px;
+      border-top: 1px solid var(--border-light);
+    }
+    footer a { color: var(--text-muted); text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: var(--brand-primary); }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 560px) {
+      header { padding: 12px 20px; }
+      nav { display: none; }
+      .logo img { height: 28px; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="#" aria-label="VODAR Home">
+      <img src="logo.png" alt="VODAR" />
+    </a>
+    <nav>
+      <a href="#products">Products</a>
+      <a href="#track">Track Order</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="block" style="margin-bottom: 40px;">
+      <h1>Move with <span class="accent">VODAR</span></h1>
+      <p class="hero-sub">Engineered for your next adventure. Order below — worldwide shipping.</p>
+      <div class="bars" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </section>
+
+    <!-- Products -->
+    <section class="block" id="products">
+      <h2>Products</h2>
+      <div class="product-grid" id="product-grid">
+        <div class="card"><div class="thumb" style="min-height:120px"></div></div>
+        <div class="card"><div class="thumb" style="min-height:120px"></div></div>
+        <div class="card"><div class="thumb" style="min-height:120px"></div></div>
+      </div>
+    </section>
+
+    <!-- Checkout -->
+    <section class="block" id="checkout">
+      <h2>Checkout</h2>
+
+      <div class="panel" id="checkout-panel">
+        <div id="summary">
+          <div class="summary-line"><span>Items</span><span id="sum-items">—</span></div>
+          <div class="summary-line"><span>Shipping</span><span id="sum-ship">Calculated after payment</span></div>
+          <div class="summary-total"><span>Total</span><span id="sum-total">$0.00</span></div>
+        </div>
+
+        <form id="checkout-form" style="margin-top: 18px;" novalidate>
+          <div class="field">
+            <label for="c-name">Full Name</label>
+            <input type="text" id="c-name" autocomplete="name" placeholder="Your name" required />
+          </div>
+          <div class="field">
+            <label for="c-email">Email <span style="font-weight:400;color:var(--text-muted)">(order confirmation is sent here)</span></label>
+            <input type="email" id="c-email" autocomplete="email" placeholder="you@example.com" required />
+          </div>
+          <div class="field">
+            <label for="c-address">Street Address</label>
+            <input type="text" id="c-address" autocomplete="street-address" placeholder="Street and number" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="c-city">City</label>
+              <input type="text" id="c-city" placeholder="City" required />
+            </div>
+            <div class="field">
+              <label for="c-zip">ZIP / Postal Code</label>
+              <input type="text" id="c-zip" autocomplete="postal-code" placeholder="Postal code" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="c-country">Country</label>
+            <input type="text" id="c-country" autocomplete="country-name" placeholder="Country" required />
+          </div>
+          <button type="submit" class="btn" id="btn-order">Place Order</button>
+          <p class="form-status" id="checkout-status" role="status"></p>
+        </form>
+      </div>
+
+      <!-- Payment step (demo) -->
+      <div class="panel hidden" id="pay-panel">
+        <h3 style="font-size:16px;margin-bottom:8px;">Order created</h3>
+        <p style="font-size:14px;color:var(--text-secondary);">Order number: <strong id="pay-order-id" class="order-no" style="font-size:16px;"></strong></p>
+        <button type="button" class="btn" id="btn-pay" style="margin-top:16px;">Pay Now</button>
+        <p class="form-status" id="pay-status" role="status"></p>
+        <p class="demo-note">Demo checkout — no real charge is made. Live card payment is enabled once our payment provider is connected.</p>
+      </div>
+
+      <!-- Success step -->
+      <div class="panel hidden" id="success-panel">
+        <div class="success-box">
+          <div class="check">✓</div>
+          <h3 style="font-size:18px;">Payment received. Thank you!</h3>
+          <p style="font-size:14px;color:var(--text-secondary);">Keep your order number:</p>
+          <div class="order-no" id="success-order-id"></div>
+          <p class="hint" id="success-email-note">A confirmation email has been sent to you.</p>
+          <div style="display:flex;gap:10px;margin-top:18px;">
+            <button type="button" class="btn" id="btn-goto-track">Track this order</button>
+            <button type="button" class="btn btn-ghost" id="btn-new-order">New order</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Track order -->
+    <section class="block" id="track">
+      <h2>Track Order</h2>
+      <div class="track-search">
+        <input type="text" id="track-input" placeholder="Enter your order number, e.g. VOD-260918-A1B2C3" />
+        <button type="button" id="btn-track">Find</button>
+      </div>
+      <p class="hint" style="margin-bottom:16px;">Your order number appears on the confirmation page and email.</p>
+
+      <div id="track-result"></div>
+
+      <!-- Aftersales form -->
+      <div class="panel hidden" id="aftersales-panel" style="margin-top:18px;">
+        <h3 style="font-size:16px;margin-bottom:12px;">Request After-Sales Support</h3>
+        <form id="aftersales-form" novalidate>
+          <div class="field-row">
+            <div class="field">
+              <label for="as-type">Type</label>
+              <select id="as-type">
+                <option value="return">Return</option>
+                <option value="exchange">Exchange</option>
+                <option value="other">Other issue</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="as-subject">Subject</label>
+              <input type="text" id="as-subject" placeholder="Short summary" maxlength="120" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="as-detail">Details</label>
+            <textarea id="as-detail" placeholder="Describe the issue..." maxlength="2000" required></textarea>
+          </div>
+          <div class="field">
+            <label for="as-email">Order Email <span style="font-weight:400;color:var(--text-muted)">(must match the email used for this order)</span></label>
+            <input type="email" id="as-email" placeholder="Email used at checkout" required />
+            <p class="hint" id="as-email-hint"></p>
+          </div>
+          <button type="submit" class="btn" id="btn-aftersales">Submit Request</button>
+          <p class="form-status" id="aftersales-status" role="status"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="block contact" id="contact" style="max-width:460px;">
+      <h2>Leave us a message</h2>
+      <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="86074a8d-b752-4081-a24e-59d75c4fd678" />
+        <input type="hidden" name="subject" value="New message from vodar.net" />
+        <input type="checkbox" name="botcheck" tabindex="-1" aria-hidden="true" style="display: none;" />
+        <div class="field">
+          <label for="email">Your Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required />
+        </div>
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" placeholder="Write your message here..." required></textarea>
+        </div>
+        <button type="submit" class="btn-send btn" id="btn-send">Send Message</button>
+        <p class="form-status" id="form-status" role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <div>© 2026 VODAR. All rights reserved.</div>
+    <div style="margin-top:6px;">
+      <a href="privacy.html">Privacy Policy</a>·<a href="returns.html">Return Policy</a>
+    </div>
+  </footer>
+
+  <script>
+    /* ============ State ============ */
+    let products = [];
+    const qty = {};       // productId -> quantity
+    let trackedOrder = null;
+
+    const $ = (id) => document.getElementById(id);
+    const money = (cents) => '$' + (cents / 100).toFixed(2);
+
+    /* ============ Products ============ */
+    const THUMBS = {
+      P1: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg"><rect x="42" y="18" width="36" height="54" rx="12" fill="#F0303F"/><rect x="50" y="26" width="20" height="30" rx="6" fill="#FFF0F1"/><circle cx="60" cy="66" r="3" fill="#FFF0F1"/><rect x="36" y="30" width="6" height="30" rx="3" fill="#C41A27"/><rect x="78" y="30" width="6" height="30" rx="3" fill="#C41A27"/></svg>`,
+      P2: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg"><path d="M20 45 C 35 20, 55 70, 75 40 S 100 30, 104 45" stroke="#F0303F" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="12" y="38" width="12" height="14" rx="3" fill="#C41A27"/><rect x="100" y="38" width="12" height="14" rx="3" fill="#C41A27"/></svg>`,
+      P3: `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg"><path d="M30 20 C 70 20, 100 45, 60 70 C 40 82, 25 60, 30 20 Z" fill="#F0303F" opacity=".9"/><circle cx="30" cy="20" r="7" fill="#C41A27"/><circle cx="60" cy="70" r="7" fill="#C41A27"/></svg>`,
+    };
+
+    async function loadProducts() {
+      try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        products = data.products || [];
+      } catch {
+        products = [];
+      }
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const grid = $('product-grid');
+      if (!products.length) {
+        grid.innerHTML = '<p style="color:var(--text-muted);font-size:14px;">Products are being restocked. Please check back soon.</p>';
+        updateSummary();
+        return;
+      }
+      grid.innerHTML = '';
+      for (const p of products) {
+        qty[p.id] = qty[p.id] || 0;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="thumb">${THUMBS[p.id] || THUMBS.P1}</div>
+          <h3>${escapeHtml(p.name)}</h3>
+          <p class="desc">${escapeHtml(p.description || '')}</p>
+          <div class="price">${money(p.price_amt)}</div>
+          <div class="qty-row">
+            <div class="stepper">
+              <button type="button" data-act="dec" data-id="${p.id}" aria-label="decrease">−</button>
+              <span class="n" id="n-${p.id}">0</span>
+              <button type="button" data-act="inc" data-id="${p.id}" aria-label="increase">+</button>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      }
+      grid.querySelectorAll('button[data-act]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          if (btn.dataset.act === 'inc') qty[id] = Math.min(10, (qty[id] || 0) + 1);
+          else qty[id] = Math.max(0, (qty[id] || 0) - 1);
+          $('n-' + id).textContent = qty[id];
+          updateSummary();
+        });
+      });
+      updateSummary();
+    }
+
+    function selectedItems() {
+      return products.filter((p) => (qty[p.id] || 0) > 0).map((p) => ({ id: p.id, qty: qty[p.id] }));
+    }
+
+    function updateSummary() {
+      const items = selectedItems();
+      const total = items.reduce((s, it) => s + (products.find((p) => p.id === it.id).price_amt * it.qty), 0);
+      const count = items.reduce((s, it) => s + it.qty, 0);
+      $('sum-items').textContent = count > 0 ? `${count} item${count > 1 ? 's' : ''}` : '—';
+      $('sum-total').textContent = money(total);
+    }
+
+    /* ============ Checkout ============ */
+    $('checkout-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const statusEl = $('checkout-status');
+      const btn = $('btn-order');
+
+      const items = selectedItems();
+      if (!items.length) {
+        statusEl.textContent = 'Please select at least one product above.';
+        statusEl.className = 'form-status error';
+        document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      const payload = {
+        name: $('c-name').value, email: $('c-email').value,
+        address: $('c-address').value, city: $('c-city').value,
+        country: $('c-country').value, zip: $('c-zip').value,
+        items,
+      };
+      if (!payload.name || !payload.email.includes('@') || !payload.address || !payload.city || !payload.country) {
+        statusEl.textContent = 'Please complete all shipping information fields.';
+        statusEl.className = 'form-status error';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Placing order...';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
+      try {
+        const res = await fetch('/api/order/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to create order.');
+        showPayStep(data.order);
+      } catch (err) {
+        statusEl.textContent = err.message || 'Something went wrong. Please try again.';
+        statusEl.className = 'form-status error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Place Order';
+      }
+    });
+
+    function showPayStep(orderId) {
+      $('checkout-form').classList.add('hidden');
+      $('summary').classList.add('hidden');
+      $('pay-order-id').textContent = orderId;
+      $('pay-panel').classList.remove('hidden');
+      $('pay-status').textContent = '';
+      $('pay-status').className = 'form-status';
+      $('checkout-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    $('btn-pay').addEventListener('click', async () => {
+      const btn = $('btn-pay');
+      const statusEl = $('pay-status');
+      const orderId = $('pay-order-id').textContent.trim();
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      try {
+        const res = await fetch(`/api/order/${encodeURIComponent(orderId)}/pay`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Payment failed.');
+        showSuccessStep(orderId);
+      } catch (err) {
+        statusEl.textContent = err.message || 'Payment failed. Please try again.';
+        statusEl.className = 'form-status error';
+        btn.disabled = false;
+        btn.textContent = 'Pay Now';
+      }
+    });
+
+    function showSuccessStep(orderId) {
+      $('pay-panel').classList.add('hidden');
+      $('success-order-id').textContent = orderId;
+      $('success-email-note').textContent =
+        'A confirmation email has been sent to ' + $('c-email').value.trim() + '.';
+      $('success-panel').classList.remove('hidden');
+      $('success-panel').scrollIntoView({ behavior: 'smooth' });
+      // Keep email for aftersales prefill
+      window._lastEmail = $('c-email').value.trim();
+    }
+
+    $('btn-goto-track').addEventListener('click', () => {
+      $('track-input').value = $('success-order-id').textContent.trim();
+      document.getElementById('track').scrollIntoView({ behavior: 'smooth' });
+      trackOrder();
+    });
+
+    $('btn-new-order').addEventListener('click', () => {
+      $('success-panel').classList.add('hidden');
+      $('checkout-form').classList.remove('hidden');
+      $('summary').classList.remove('hidden');
+      $('checkout-form').reset();
+      for (const p of products) { qty[p.id] = 0; const n = $('n-' + p.id); if (n) n.textContent = '0'; }
+      updateSummary();
+    });
+
+    /* ============ Track ============ */
+    const STATUS_STEPS = ['pending', 'paid', 'shipped', 'completed'];
+    const STATUS_LABEL = { pending: 'Order placed', paid: 'Payment', shipped: 'Shipped', completed: 'Completed' };
+    const BADGE_LABEL = { pending: 'Awaiting payment', paid: 'Paid', shipped: 'Shipped', completed: 'Completed' };
+    const AS_LABEL = { open: 'Open', processing: 'In progress', resolved: 'Resolved' };
+
+    $('btn-track').addEventListener('click', trackOrder);
+    $('track-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') trackOrder(); });
+
+    async function trackOrder() {
+      const id = $('track-input').value.trim().toUpperCase();
+      const box = $('track-result');
+      if (!id) { box.innerHTML = ''; return; }
+
+      box.innerHTML = '<p style="color:var(--text-muted);font-size:14px;">Searching…</p>';
+      $('aftersales-panel').classList.add('hidden');
+      try {
+        const res = await fetch(`/api/order/${encodeURIComponent(id)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Order not found.');
+        trackedOrder = data.order;
+        renderTrack(data.order);
+      } catch (err) {
+        box.innerHTML = `<div class="track-card"><p style="color:var(--brand-primary);font-size:14px;">${escapeHtml(err.message)}</p></div>`;
+      }
+    }
+
+    function renderTrack(order) {
+      const box = $('track-result');
+      const stepIdx = STATUS_STEPS.indexOf(order.status);
+
+      const timeline = STATUS_STEPS.map((s, i) =>
+        `<div class="tl-step ${i <= stepIdx ? 'done' : ''}">${STATUS_LABEL[s]}</div>`
+      ).join('');
+
+      const itemsHtml = order.items.map((it) => `
+        <div class="kv"><span class="k">${escapeHtml(it.name || it.product_id)} × ${it.qty}</span>
+        <span>${money(it.unit_price * it.qty)}</span></div>`).join('');
+
+      const trackingHtml = order.tracking.length
+        ? order.tracking.map((t) => `
+          <div class="kv"><span class="k">${escapeHtml(t.carrier)}</span>
+          <span><strong>${escapeHtml(t.tracking_no)}</strong>
+          &nbsp;<a href="https://t.17track.net/en#nums=${encodeURIComponent(t.tracking_no)}" target="_blank" rel="noopener" style="color:var(--brand-primary);font-size:13px;">track →</a></span></div>`).join('')
+        : '<div class="kv"><span class="k">Tracking</span><span style="color:var(--text-muted);font-size:13px;">Not yet available — we will add it once shipped.</span></div>';
+
+      const ticketsHtml = order.aftersales.length
+        ? order.aftersales.map((t) => `
+          <div style="border:1px solid var(--border-light);border-radius:10px;padding:12px;margin-top:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong style="font-size:13px;">${escapeHtml(t.subject)}</strong>
+              <span class="badge ${t.status}">${AS_LABEL[t.status] || t.status}</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-top:6px;">${escapeHtml(t.resolution || 'We are reviewing your request.')}</p>
+          </div>`).join('')
+        : '';
+
+      box.innerHTML = `
+        <div class="track-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong>${escapeHtml(order.order_id)}</strong>
+            <span class="badge ${order.status}">${BADGE_LABEL[order.status] || order.status}</span>
+          </div>
+          <div class="timeline">${timeline}</div>
+          ${itemsHtml}
+          <div class="summary-total" style="margin-top:8px;"><span>Total</span><span>${money(order.total_amt)}</span></div>
+        </div>
+        <div class="track-card">
+          <h4>Shipment</h4>
+          ${trackingHtml}
+        </div>
+        ${order.aftersales.length ? `<div class="track-card"><h4>Support requests</h4>${ticketsHtml}</div>` : ''}
+      `;
+
+      // Aftersales entry: needs order number + matching email
+      $('as-email-hint').textContent = `Email on file: ${order.email_hint}`;
+      $('as-email').value = window._lastEmail || '';
+      $('aftersales-panel').classList.remove('hidden');
+    }
+
+    /* ============ Aftersales ============ */
+    $('aftersales-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const statusEl = $('aftersales-status');
+      const btn = $('btn-aftersales');
+      const orderId = trackedOrder ? trackedOrder.order_id : $('track-input').value.trim().toUpperCase();
+      if (!orderId) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
+      try {
+        const res = await fetch(`/api/order/${encodeURIComponent(orderId)}/aftersales`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: $('as-type').value,
+            subject: $('as-subject').value,
+            detail: $('as-detail').value,
+            email: $('as-email').value,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Submission failed.');
+        $('as-subject').value = '';
+        $('as-detail').value = '';
+        statusEl.textContent = 'Request submitted. We will get back to you soon.';
+        statusEl.className = 'form-status success';
+        trackOrder();
+      } catch (err) {
+        statusEl.textContent = err.message || 'Something went wrong. Please try again.';
+        statusEl.className = 'form-status error';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Request';
+      }
+    });
+
+    /* ============ Contact (Web3Forms) ============ */
+    const form = $('contact-form');
+    const statusEl = $('form-status');
+    const sendBtn = $('btn-send');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+        const data = await res.json();
+        if (data.success) {
+          form.reset();
+          statusEl.textContent = 'Thank you! Your message has been sent.';
+          statusEl.classList.add('success');
+        } else {
+          throw new Error(data.message || 'Submission failed');
+        }
+      } catch (err) {
+        statusEl.textContent = 'Something went wrong. Please try again later.';
+        statusEl.classList.add('error');
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Message';
+      }
+    });
+
+    /* ============ Helpers ============ */
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      }[c]));
+    }
+
+    loadProducts();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>VODAR — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand-primary: #F0303F;
+      --brand-primary-dark: #C41A27;
+      --brand-primary-tint: #FFF0F1;
+      --text-primary: #1A1A2E;
+      --text-secondary: #4A4A5A;
+      --text-muted: #8A8A9A;
+      --bg-light: #F5F5F7;
+      --border-light: #E8E8EC;
+      --ok: #16a34a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif; color: var(--text-primary);
+      background: var(--bg-light); min-height: 100vh;
+    }
+    header {
+      background: #fff; border-bottom: 1px solid var(--border-light);
+      padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    }
+    header img { height: 28px; width: auto; }
+    header h1 { font-family: 'Montserrat', sans-serif; font-size: 18px; }
+    header .right { margin-left: auto; display: flex; gap: 14px; align-items: center; }
+    header a, header button.linklike {
+      font-size: 13px; color: var(--text-secondary); text-decoration: none; cursor: pointer;
+      border: none; background: none; font-family: inherit;
+    }
+    header a:hover, header button.linklike:hover { color: var(--brand-primary); }
+
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tabs button {
+      padding: 9px 18px; border-radius: 20px; border: 1px solid var(--border-light);
+      background: #fff; font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer;
+    }
+    .tabs button.active { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
+
+    .card { background: #fff; border: 1px solid var(--border-light); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; color: var(--text-muted); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--border-light); white-space: nowrap; }
+    td { padding: 10px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+    .badge.paid, .badge.resolved { background: #EAF7EC; color: var(--ok); }
+    .badge.pending, .badge.open { background: var(--bg-light); color: var(--text-muted); }
+    .badge.shipped, .badge.processing { background: #FFF6E8; color: #C77D0A; }
+    .badge.completed { background: var(--brand-primary-tint); color: var(--brand-primary-dark); }
+
+    input, select, textarea {
+      padding: 8px 10px; border: 1px solid var(--border-light); border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-primary); background: #fff;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--brand-primary); }
+    .btn {
+      padding: 9px 16px; border: none; border-radius: 8px; background: var(--brand-primary); color: #fff;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn:hover { background: var(--brand-primary-dark); }
+    .btn.sm { padding: 6px 12px; font-size: 12px; }
+    .btn.ghost { background: #fff; color: var(--brand-primary); border: 1px solid var(--brand-primary); }
+    .btn:disabled { opacity: .6; cursor: wait; }
+
+    .login-wrap { max-width: 360px; margin: 12vh auto 0; }
+    .login-wrap .card { padding: 28px; }
+    .login-wrap h2 { font-family: 'Montserrat', sans-serif; font-size: 18px; margin-bottom: 16px; }
+    .login-wrap .field { margin-bottom: 14px; }
+    .login-wrap label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+    .login-wrap input { width: 100%; }
+    .status { font-size: 13px; margin-top: 10px; min-height: 18px; }
+    .status.error { color: var(--brand-primary); }
+    .status.ok { color: var(--ok); }
+
+    .details { background: var(--bg-light); border-radius: 8px; padding: 12px; margin: 8px 0 4px; font-size: 13px; line-height: 1.7; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--text-primary); color: #fff;
+      padding: 10px 18px; border-radius: 10px; font-size: 13px; opacity: 0; transition: opacity .3s; pointer-events: none;
+    }
+    .toast.show { opacity: .95; }
+    .empty { color: var(--text-muted); font-size: 13px; padding: 12px 0; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="logo.png" alt="VODAR" />
+    <h1>Admin</h1>
+    <div class="right" id="header-right" style="display:none;">
+      <a href="index.html" target="_blank">View store</a>
+      <button class="linklike" id="btn-logout">Log out</button>
+    </div>
+  </header>
+
+  <!-- Login -->
+  <div class="login-wrap" id="login-view">
+    <div class="card">
+      <h2>Admin sign in</h2>
+      <div class="field">
+        <label for="pw">Password</label>
+        <input type="password" id="pw" autocomplete="current-password" />
+      </div>
+      <button class="btn" id="btn-login" style="width:100%;">Sign in</button>
+      <p class="status" id="login-status"></p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <main id="dash" style="display:none;">
+    <div class="tabs">
+      <button data-tab="orders" class="active">Orders</button>
+      <button data-tab="aftersales">After-Sales</button>
+      <button data-tab="products">Products</button>
+    </div>
+
+    <div id="tab-orders">
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th>Order</th><th>Date</th><th>Buyer</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+        <p class="empty" id="orders-empty" style="display:none;">No orders yet.</p>
+      </div>
+    </div>
+
+    <div id="tab-aftersales" style="display:none;">
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Order</th><th>Type</th><th>Subject / Detail</th><th>Contact</th><th>Status</th><th>Update</th>
+          </tr></thead>
+          <tbody id="aftersales-body"></tbody>
+        </table>
+        <p class="empty" id="aftersales-empty" style="display:none;">No after-sales requests.</p>
+      </div>
+    </div>
+
+    <div id="tab-products" style="display:none;">
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Name</th><th>Price (USD)</th><th>Available</th><th>Save</th>
+          </tr></thead>
+          <tbody id="products-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const money = (cents) => '$' + (cents / 100).toFixed(2);
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    let orders = [], aftersales = [], products = [];
+
+    function toast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    async function api(path, opts = {}) {
+      const res = await fetch(path, opts);
+      if (res.status === 401) { showLogin(); throw new Error('unauthorized'); }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    }
+
+    /* ---------- Auth ---------- */
+    function showLogin() {
+      $('login-view').style.display = '';
+      $('dash').style.display = 'none';
+      $('header-right').style.display = 'none';
+    }
+    function showDash() {
+      $('login-view').style.display = 'none';
+      $('dash').style.display = '';
+      $('header-right').style.display = '';
+    }
+
+    $('btn-login').addEventListener('click', async () => {
+      const btn = $('btn-login'), st = $('login-status');
+      btn.disabled = true; btn.textContent = 'Signing in...'; st.textContent = '';
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: $('pw').value }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed.');
+        $('pw').value = '';
+        showDash();
+        await refreshAll();
+      } catch (err) {
+        st.textContent = err.message; st.className = 'status error';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Sign in';
+      }
+    });
+    $('pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('btn-login').click(); });
+
+    $('btn-logout').addEventListener('click', async () => {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      showLogin();
+    });
+
+    /* ---------- Tabs ---------- */
+    document.querySelectorAll('.tabs button').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.tabs button').forEach((x) => x.classList.remove('active'));
+        b.classList.add('active');
+        ['orders', 'aftersales', 'products'].forEach((t) => {
+          $('tab-' + t).style.display = t === b.dataset.tab ? '' : 'none';
+        });
+      });
+    });
+
+    /* ---------- Orders ---------- */
+    async function loadOrders() {
+      const data = await api('/api/admin/orders');
+      orders = data.orders || [];
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const body = $('orders-body');
+      body.innerHTML = '';
+      $('orders-empty').style.display = orders.length ? 'none' : '';
+      for (const o of orders) {
+        const tr = document.createElement('tr');
+        const itemsText = o.items.map((it) => `${it.product_id}×${it.qty}`).join(', ');
+        tr.innerHTML = `
+          <td><strong>${esc(o.order_id)}</strong></td>
+          <td style="white-space:nowrap;">${esc(o.created_at)}</td>
+          <td>${esc(o.customer_name)}<br><span style="color:var(--text-muted);">${esc(o.email)}</span></td>
+          <td>${esc(itemsText)}${o.aftersales_count ? `<br><span style="color:var(--brand-primary);">${o.aftersales_count} support req.</span>` : ''}</td>
+          <td><strong>${money(o.total_amt)}</strong><br><span style="color:var(--text-muted);">${esc(o.payment_status)}</span></td>
+          <td><span class="badge ${o.status}">${esc(o.status)}</span></td>
+          <td class="row-actions"></td>`;
+        const actions = tr.querySelector('td:last-child');
+
+        const detailsBtn = mkBtn('Details', 'ghost sm', () => {
+          alert(
+`${o.order_id}
+Status: ${o.status}
+Buyer: ${o.customer_name} <${o.email}>
+Ship to: ${o.address}, ${o.city} ${o.zip}, ${o.country}
+Items: ${itemsText}
+Total: ${money(o.total_amt)} (${o.payment_status})
+Created: ${o.created_at}
+Tracking: ${o.tracking.map((t) => `${t.carrier} ${t.tracking_no}`).join(' | ') || '—'}`
+          );
+        });
+        actions.appendChild(detailsBtn);
+
+        if (o.status === 'paid' || o.status === 'shipped') {
+          const shipBtn = mkBtn(o.status === 'paid' ? 'Add tracking' : 'Update tracking', 'sm', async (btn) => {
+            const carrier = prompt('Carrier (e.g. DHL, EMS, FedEx):');
+            if (!carrier) return;
+            const trackingNo = prompt('Tracking number:');
+            if (!trackingNo) return;
+            btn.disabled = true;
+            try {
+              await api('/api/admin/tracking', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: o.order_id, carrier, tracking_no: trackingNo }),
+              });
+              toast('Tracking saved — order marked as shipped.');
+              await loadOrders();
+            } catch (err) { toast(err.message); }
+            btn.disabled = false;
+          });
+          actions.appendChild(shipBtn);
+        }
+
+        if (o.status === 'shipped') {
+          const doneBtn = mkBtn('Complete', 'ghost sm', async (btn) => {
+            btn.disabled = true;
+            try {
+              await api('/api/admin/tracking', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: o.order_id, action: 'complete' }),
+              });
+              toast('Order marked as completed.');
+              await loadOrders();
+            } catch (err) { toast(err.message); }
+            btn.disabled = false;
+          });
+          actions.appendChild(doneBtn);
+        }
+
+        body.appendChild(tr);
+      }
+    }
+
+    function mkBtn(label, cls, onClick) {
+      const b = document.createElement('button');
+      b.className = 'btn ' + cls;
+      b.textContent = label;
+      b.addEventListener('click', () => onClick(b));
+      return b;
+    }
+
+    /* ---------- Aftersales ---------- */
+    async function loadAftersales() {
+      const data = await api('/api/admin/aftersales');
+      aftersales = data.aftersales || [];
+      renderAftersales();
+    }
+
+    function renderAftersales() {
+      const body = $('aftersales-body');
+      body.innerHTML = '';
+      $('aftersales-empty').style.display = aftersales.length ? 'none' : '';
+      for (const t of aftersales) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>#${t.id}</td>
+          <td><strong>${esc(t.order_id)}</strong></td>
+          <td>${esc(t.type)}</td>
+          <td><strong>${esc(t.subject)}</strong><br>
+              <span style="color:var(--text-secondary);">${esc(t.detail.slice(0, 200))}</span>
+              <div class="details"><textarea rows="2" style="width:100%;" data-id="${t.id}" placeholder="Reply / resolution shown to buyer">${esc(t.resolution)}</textarea></div>
+          </td>
+          <td>${esc(t.contact)}<br><span style="color:var(--text-muted);">${esc(t.created_at)}</span></td>
+          <td><select data-id="${t.id}" class="sel-status">
+            <option value="open" ${t.status === 'open' ? 'selected' : ''}>Open</option>
+            <option value="processing" ${t.status === 'processing' ? 'selected' : ''}>Processing</option>
+            <option value="resolved" ${t.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+          </select></td>
+          <td></td>`;
+        const saveBtn = mkBtn('Save', 'sm', async (btn) => {
+          btn.disabled = true;
+          try {
+            await api('/api/admin/aftersales', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: t.id,
+                status: tr.querySelector('.sel-status').value,
+                resolution: tr.querySelector('textarea').value,
+              }),
+            });
+            toast('Ticket updated.');
+          } catch (err) { toast(err.message); }
+          btn.disabled = false;
+        });
+        tr.querySelector('td:last-child').appendChild(saveBtn);
+        body.appendChild(tr);
+      }
+    }
+
+    /* ---------- Products ---------- */
+    async function loadProducts() {
+      const data = await api('/api/admin/products');
+      products = data.products || [];
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const body = $('products-body');
+      body.innerHTML = '';
+      for (const p of products) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${esc(p.id)}</td>
+          <td>${esc(p.name)}</td>
+          <td><input type="number" min="0.01" step="0.01" value="${(p.price_amt / 100).toFixed(2)}" style="width:90px;" data-id="${p.id}"></td>
+          <td><input type="checkbox" ${p.active ? 'checked' : ''} data-id="${p.id}"></td>
+          <td></td>`;
+        const saveBtn = mkBtn('Save', 'sm', async (btn) => {
+          btn.disabled = true;
+          const priceInput = tr.querySelector('input[type=number]');
+          const priceAmt = Math.round(parseFloat(priceInput.value || '0') * 100);
+          const active = tr.querySelector('input[type=checkbox]').checked;
+          try {
+            await api('/api/admin/products', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: p.id, price_amt: priceAmt, active }),
+            });
+            toast('Product saved.');
+          } catch (err) { toast(err.message); }
+          btn.disabled = false;
+        });
+        tr.querySelector('td:last-child').appendChild(saveBtn);
+        body.appendChild(tr);
+      }
+    }
+
+    async function refreshAll() {
+      try {
+        await Promise.all([loadOrders(), loadAftersales(), loadProducts()]);
+      } catch (err) {
+        if (err.message !== 'unauthorized') toast(err.message);
+      }
+    }
+
+    /* ---------- Init: check session ---------- */
+    (async () => {
+      try {
+        await api('/api/admin/orders');
+        showDash();
+        await refreshAll();
+      } catch {
+        showLogin();
+      }
+    })();
+  </script>
+
+</body>
+</html>

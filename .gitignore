@@ -1,2 +1,6 @@
 # TRAE internal
 .trae-html-share-packages/
+
+# Wrangler local dev
+.wrangler/
+.dev.vars
